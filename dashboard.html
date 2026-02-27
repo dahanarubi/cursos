@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard Admin</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- NAVBAR (igual que index) -->
+<nav class="navbar">
+  <h2 class="logo">CursosDigitales</h2>
+  <a href="index.html" class="btn-nav">Cerrar sesión</a>
+</nav>
+
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo-sidebar">Impulsa</div>
+    <nav>
+      <a href="#" class="active">Inicio</a>
+      <a href="#">Cursos</a>
+      <a href="#">Estudiantes</a>
+      <a href="#">Instructores</a>
+      <a href="#">Configuración</a>
+      <a href="#" onclick="document.querySelector('.form-card').scrollIntoView({behavior:'smooth'})">
+        Nuevo Curso
+      </a>
+    </nav>
+  </aside>
+
+  <!-- CONTENIDO -->
+  <main class="main-content">
+
+    <!-- TARJETAS RESUMEN -->
+    <section class="cards">
+      <div class="stat-card">
+        <h3>Total Cursos</h3>
+        <p id="totalCursos">0</p>
+      </div>
+
+      <div class="stat-card">
+        <h3>Plataforma</h3>
+        <p>Activa</p>
+      </div>
+    </section>
+
+    <!-- FORMULARIO -->
+    <section class="form-card">
+      <h2>Agregar Cursos</h2>
+
+      <form id="formCurso">
+
+        <input type="text" id="nombre" placeholder="Nombre del curso">
+
+        <input type="text" id="instructor" placeholder="Instructor">
+
+        <div class="row">
+          <select id="nivel">
+            <option value="">Nivel</option>
+            <option value="Básico">Básico</option>
+            <option value="Intermedio">Intermedio</option>
+            <option value="Avanzado">Avanzado</option>
+          </select>
+
+          <select id="duracion">
+            <option value="">Duración</option>
+            <option value="1 mes">1 mes</option>
+            <option value="2 meses">2 meses</option>
+            <option value="3 meses">3 meses</option>
+          </select>
+        </div>
+
+        <button type="submit" class="btn-primary">Guardar Curso</button>
+
+      </form>
+    </section>
+
+  </main>
+</div>
+
+<script>
+async function actualizarContador() {
+  const r = await fetch('/api/cursos');
+  const cursos = await r.json();
+  document.getElementById('totalCursos').textContent = cursos.length;
+}
+
+document.getElementById('formCurso').addEventListener('submit', async e => {
+  e.preventDefault();
+
+  const nombre = document.getElementById('nombre').value.trim();
+  const instructor = document.getElementById('instructor').value.trim();
+  const nivel = document.getElementById('nivel').value;
+  const duracion = document.getElementById('duracion').value;
+
+  if (!nombre || !instructor || !nivel || !duracion) {
+    alert("Completa todos los campos");
+    return;
+  }
+
+  const r = await fetch('/api/cursos', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ nombre, instructor, nivel, duracion })
+  });
+
+  const data = await r.json();
+
+  if (data.ok) {
+    document.getElementById('formCurso').reset();
+    actualizarContador();
+    alert('Curso creado');
+  }
+});
+
+actualizarContador();
+</script>
+
+</body>
+</html>
